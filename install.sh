@@ -1,16 +1,14 @@
 #!/bin/bash
-echo "🔧 Memulai install bot WhatsApp..."
 
-# Update sistem dan install Node.js + git
-apt update && apt install -y git nodejs npm
+echo "🔧 Installing dependencies..."
+apt update && apt install -y nodejs npm git
 
-# Clone repo
+echo "📥 Cloning bot..."
 git clone https://github.com/script-vpn-premium/simplebot.git
-cd simplebot
+cd simplebot || exit
 
-# Install dependensi
+echo "📦 Installing npm packages..."
 npm install
 
-# Jalankan bot WhatsApp
-echo "🚀 Menjalankan bot... silakan scan QR WhatsApp"
+echo "🚀 Starting bot (manual pairing code)..."
 node index.js
