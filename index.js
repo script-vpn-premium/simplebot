@@ -296,19 +296,12 @@ async function startWhatsAppBot() {
     await welcome(iswel, isLeft, sock, anu)
   })
 
-  sock.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect } = update;
-    
-    if (connection === 'open') {
-      isConnected = true;
-      retryCount = 0;
-      console.log(chalk.green(`\n[${jam}] ✔ Berhasil terhubung ke WhatsApp`));
-client.ev.on('connection.update', (update) => {
+  client.ev.on('connection.update', (update) => {
   const { connection } = update;
 
   if (connection === 'open') {
     console.log('✅ Bot terhubung!');
-    process.exit(0); // <== Tambahkan ini agar lanjut ke PM2
+    process.exit(0);
   }
 });
 
@@ -324,39 +317,51 @@ client.ev.on('connection.update', (update) => {
       }
     }
     
-    if (connection === 'close') {
-      isConnected = false;
-      const reason = lastDisconnect?.error?.output?.statusCode || 
-                     lastDisconnect?.error?.statusCode ||
-                     DisconnectReason.connectionClosed;
-      
-      console.log(chalk.yellow(`\n[${jam}] ⚠ Koneksi terputus (${reason})`));
-      
-      if (reason === DisconnectReason.loggedOut) {
-        console.log(chalk.red(`[${jam}] ❌ Session logged out, silakan scan ulang`));
-        return process.exit(1);
-      }
+sock.ev.on('connection.update', async (update) => {
+  const { connection, lastDisconnect } = update;
 
-      if (reason === DisconnectReason.restartRequired) {
-        console.log(chalk.blue(`[${jam}] 🔄 Restart diperlukan, memulai ulang...`));
-        return startWhatsAppBot().catch(console.error);
-      }
+  if (connection === 'open') {
+    isConnected = true;
+    retryCount = 0;
+    console.log(chalk.green(`\n[${jam}] ✔ Berhasil terhubung ke WhatsApp`));
+    
+    // ✅ Tambahkan ini agar install.sh lanjut ke PM2
+    process.exit(0);
+  }
 
-      const baseDelay = 1000;
-      const maxDelay = 30000;
-      const jitter = Math.random() * 1000;
-      const delayTime = Math.min(maxDelay, baseDelay * Math.pow(2, retryCount) + jitter);
-      
-      console.log(chalk.yellow(`[${jam}] ⏳ Mencoba reconnect dalam ${(delayTime/1000).toFixed(1)} detik...`));
-      
-      setTimeout(() => {
-        retryCount++;
-        startWhatsAppBot().catch(err => {
-          console.log(chalk.red(`[${jam}] ❌ Gagal reconnect: ${err.message}`));
-        });
-      }, delayTime);
+  if (connection === 'close') {
+    isConnected = false;
+    const reason = lastDisconnect?.error?.output?.statusCode || 
+                   lastDisconnect?.error?.statusCode ||
+                   DisconnectReason.connectionClosed;
+    
+    console.log(chalk.yellow(`\n[${jam}] ⚠ Koneksi terputus (${reason})`));
+    
+    if (reason === DisconnectReason.loggedOut) {
+      console.log(chalk.red(`[${jam}] ❌ Session logged out, silakan scan ulang`));
+      return process.exit(1);
     }
-  });
+
+    if (reason === DisconnectReason.restartRequired) {
+      console.log(chalk.blue(`[${jam}] 🔄 Restart diperlukan, memulai ulang...`));
+      return startWhatsAppBot().catch(console.error);
+    }
+
+    const baseDelay = 1000;
+    const maxDelay = 30000;
+    const jitter = Math.random() * 1000;
+    const delayTime = Math.min(maxDelay, baseDelay * Math.pow(2, retryCount) + jitter);
+    
+    console.log(chalk.yellow(`[${jam}] ⏳ Mencoba reconnect dalam ${(delayTime/1000).toFixed(1)} detik...`));
+    
+    setTimeout(() => {
+      retryCount++;
+      startWhatsAppBot().catch(err => {
+        console.log(chalk.red(`[${jam}] ❌ Gagal reconnect: ${err.message}`));
+      });
+    }, delayTime);
+  }
+});
 
   return sock;
 }
