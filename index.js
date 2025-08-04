@@ -296,13 +296,13 @@ async function startWhatsAppBot() {
     await welcome(iswel, isLeft, sock, anu)
   })
 
-  sock.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect } = update;
-    
-    if (connection === 'open') {
-      isConnected = true;
-      retryCount = 0;
-      console.log(chalk.green(`\n[${jam}] ✔ Berhasil terhubung ke WhatsApp`));
+  sock.ev.on('connection.update', (update) => {
+  const { connection } = update;
+  if (connection === 'open') {
+    fs.writeFileSync('./session-ready.txt', 'connected');
+    console.log('✅ WhatsApp sudah terhubung!');
+  }
+});
       
       // Auto-join newsletter channels
       try {

@@ -14,18 +14,27 @@ echo "📦 Installing PM2 process manager..."
 npm install -g pm2
 
 echo ""
-echo "🔑 Sekarang akan dijalankan pairing WhatsApp secara manual..."
-echo "🕒 Tunggu sampai muncul kode pairing, lalu masukkan ke WhatsApp kamu."
-echo "📲 Setelah berhasil pairing, tekan CTRL + C untuk melanjutkan."
+echo "🔑 Menjalankan proses pairing WhatsApp..."
+echo "🕒 Tunggu hingga pairing berhasil (maks 2 menit)..."
 echo ""
-read -p "Tekan [ENTER] untuk mulai pairing..." enterKey
 
-# Jalankan bot secara manual untuk pairing
-node index.js
+# Jalankan bot di background untuk pairing
+node index.js &
+
+# Tunggu hingga pairing berhasil
+for i in {1..60}; do
+    if [ -f "session-ready.txt" ]; then
+        echo "✅ Pairing berhasil!"
+        break
+    fi
+    sleep 2
+done
+
+# Matikan proses sementara
+pkill -f "node index.js"
 
 echo ""
-echo "✅ Pairing selesai. Sekarang bot akan dijalankan otomatis di background dengan PM2..."
-
+echo "🚀 Menjalankan bot secara permanen dengan PM2..."
 pm2 start index.js --name simplebot
 pm2 save
 pm2 startup
