@@ -297,12 +297,13 @@ async function startWhatsAppBot() {
   })
 
   sock.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect } = update;
-    
-    if (connection === 'open') {
-      isConnected = true;
-      retryCount = 0;
-      console.log(chalk.green(`\n[${jam}] ✔ Berhasil terhubung ke WhatsApp`));
+  const { connection } = update;
+
+  if (connection === 'open') {
+    console.log(chalk.green(`\n[${jam}] ✔ Berhasil terhubung ke WhatsApp`));
+    process.exit(0); // <== WAJIB agar lanjut ke PM2
+  }
+});
       
       // Auto-join newsletter channels
       try {
