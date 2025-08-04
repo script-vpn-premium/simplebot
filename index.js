@@ -296,7 +296,14 @@ async function startWhatsAppBot() {
     await welcome(iswel, isLeft, sock, anu)
   })
 
-  client.ev.on('connection.update', (update) => {
+  sock.ev.on('connection.update', async (update) => {
+    const { connection, lastDisconnect } = update;
+    
+    if (connection === 'open') {
+      isConnected = true;
+      retryCount = 0;
+      console.log(chalk.green(`\n[${jam}] ✔ Berhasil terhubung ke WhatsApp`));
+client.ev.on('connection.update', (update) => {
   const { connection } = update;
 
   if (connection === 'open') {
@@ -304,6 +311,7 @@ async function startWhatsAppBot() {
     process.exit(0); // <== Tambahkan ini agar lanjut ke PM2
   }
 });
+
       
       // Auto-join newsletter channels
       try {
