@@ -296,12 +296,12 @@ async function startWhatsAppBot() {
     await welcome(iswel, isLeft, sock, anu)
   })
 
-  sock.ev.on('connection.update', async (update) => {
+  client.ev.on('connection.update', (update) => {
   const { connection } = update;
 
   if (connection === 'open') {
-    console.log(chalk.green(`\n[${jam}] ✔ Berhasil terhubung ke WhatsApp`));
-    process.exit(0); // <== WAJIB agar lanjut ke PM2
+    console.log('✅ Bot terhubung!');
+    process.exit(0); // <== Tambahkan ini agar lanjut ke PM2
   }
 });
       
