@@ -7,7 +7,7 @@ global.sessionName = "session" // Nama file session
 
 global.botname = "LayraMD" // Bot name
 global.ownername = "Riswan Store" // Owner name
-global.owner = "6285888801241" // Owner number
+global.owner = ["6281111111111", "6282222222222"]
 global.botNumber = "628" //  Bot number
 global.version = pack.version // Version
 
