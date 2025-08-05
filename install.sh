@@ -1,37 +1,49 @@
 #!/bin/bash
 
-echo "🔧 Installing dependencies..."
-apt update && apt install -y nodejs npm git
+YELLOW='\e[33m'
+NC='\e[0m' # No Color
 
-echo "📥 Cloning bot..."
+echo -e "${YELLOW}🔧 Installing dependencies...${NC}"
+apt update && apt install -y nodejs npm git jq
+
+echo -e "${YELLOW}📥 Cloning bot...${NC}"
 git clone https://github.com/script-vpn-premium/simplebot.git
 cd simplebot || exit
 
-echo "📦 Installing npm packages..."
+echo -e "${YELLOW}📦 Installing npm packages...${NC}"
 npm install
 
-echo "📦 Installing PM2 process manager..."
+echo -e "${YELLOW}📦 Installing PM2 process manager...${NC}"
 npm install -g pm2
 
+read -p "$(echo -e "${YELLOW}📱 Masukkan nomor WhatsApp owner (cth: 6281234567890): ${NC}")" OWNER_NUMBER
+
+# Ubah baris global.owner di settings.js
+if grep -q "global\.owner *= *\"" settings.js; then
+  sed -i "s/global\.owner *= *\"[^\"]*\"/global.owner = \"$OWNER_NUMBER\"/" settings.js
+  echo -e "${YELLOW}✅ global.owner berhasil diatur ke: $OWNER_NUMBER${NC}"
+else
+  echo -e "${YELLOW}❌ Tidak ditemukan baris global.owner di settings.js${NC}"
+fi
+
 echo ""
-echo "🔑 Menjalankan pairing WhatsApp (gunakan kode pairing)..."
-echo "🕒 Tunggu sampai muncul '✅ Bot terhubung!', lalu proses akan lanjut otomatis..."
+echo -e "${YELLOW}🔑 Menjalankan pairing WhatsApp (gunakan kode pairing)...${NC}"
+echo -e "${YELLOW}🕒 Tunggu sampai muncul '✅ Bot terhubung!', lalu proses akan lanjut otomatis...${NC}"
 echo ""
 
-# Jalankan bot pairing, setelah konek dia keluar otomatis karena ada process.exit()
 node index.js
 
 echo ""
-echo "✅ Pairing sukses. Sekarang bot akan dijalankan otomatis di background dengan PM2..."
+echo -e "${YELLOW}✅ Pairing sukses. Sekarang bot akan dijalankan otomatis di background dengan PM2...${NC}"
 
 pm2 start index.js --name simplebot
 pm2 save
 pm2 startup
 
 echo ""
-echo "✅ Instalasi selesai dan bot sudah berjalan dengan PM2!"
-echo "Gunakan perintah berikut untuk mengelola bot:"
-echo "  🌐 Cek status: pm2 list"
-echo "  🔁 Restart: pm2 restart simplebot"
-echo "  🛑 Stop: pm2 stop simplebot"
-echo "  ❌ Hapus: pm2 delete simplebot"
+echo -e "${YELLOW}✅ Instalasi selesai dan bot sudah berjalan dengan PM2!${NC}"
+echo -e "${YELLOW}Gunakan perintah berikut untuk mengelola bot:${NC}"
+echo -e "  🌐 ${YELLOW}Cek status:${NC} pm2 list"
+echo -e "  🔁 ${YELLOW}Restart:${NC} pm2 restart simplebot"
+echo -e "  🛑 ${YELLOW}Stop:${NC} pm2 stop simplebot"
+echo -e "  ❌ ${YELLOW}Hapus:${NC} pm2 delete simplebot"
