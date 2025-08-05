@@ -27,23 +27,39 @@ else
 fi
 
 echo ""
-echo -e "${YELLOW}🔑 Menjalankan pairing WhatsApp (gunakan kode pairing)...${NC}"
-echo -e "${YELLOW}🕒 Tunggu sampai muncul '✅ Bot terhubung!', lalu proses akan lanjut otomatis...${NC}"
+echo -e "${YELLOW}🔑 Menjalankan pairing WhatsApp di background...${NC}"
+echo -e "${YELLOW}🕒 Tunggu sampai pairing berhasil (${NC}✅ Bot terhubung!${YELLOW})...${NC}"
 echo ""
 
-node index.js
+# Jalankan node index.js di background & redirect output ke file
+node index.js > log.txt 2>&1 &
+PAIR_PID=$!
+
+# Tunggu sampai muncul log "✅ Bot terhubung!"
+while ! grep -q "✅ Bot terhubung!" log.txt; do
+    sleep 2
+done
+
+# Hentikan proses pairing
+kill $PAIR_PID
+sleep 1
 
 echo ""
-echo -e "${YELLOW}✅ Pairing sukses. Sekarang bot akan dijalankan otomatis di background dengan PM2...${NC}"
-
+echo -e "${YELLOW}✅ Pairing sukses. Menjalankan bot dengan PM2...${NC}"
 pm2 start index.js --name simplebot
 pm2 save
+
+echo ""
+echo -e "${YELLOW}⚙️ Mengatur PM2 agar otomatis saat VPS menyala...${NC}"
 pm2 startup
 
 echo ""
-echo -e "${YELLOW}✅ Instalasi selesai dan bot sudah berjalan dengan PM2!${NC}"
-echo -e "${YELLOW}Gunakan perintah berikut untuk mengelola bot:${NC}"
-echo -e "  🌐 ${YELLOW}Cek status:${NC} pm2 list"
-echo -e "  🔁 ${YELLOW}Restart:${NC} pm2 restart simplebot"
-echo -e "  🛑 ${YELLOW}Stop:${NC} pm2 stop simplebot"
-echo -e "  ❌ ${YELLOW}Hapus:${NC} pm2 delete simplebot"
+echo -e "${YELLOW}♻️ Reboot diperlukan agar PM2 auto-start aktif saat booting.${NC}"
+read -p "$(echo -e "${YELLOW}Ingin reboot VPS sekarang? (y/n): ${NC}")" jawab
+
+if [[ "$jawab" =~ ^[Yy]$ ]]; then
+    echo -e "${YELLOW}🔁 Rebooting VPS...${NC}"
+    reboot
+else
+    echo -e "${YELLOW}🚀 Instalasi selesai. Silakan reboot VPS secara manual untuk menyelesaikan setup.${NC}"
+fi
